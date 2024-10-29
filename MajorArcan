@@ -1,0 +1,82 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cstdlib>
+#include <conio.h>
+#include <windows.h>
+using namespace std;
+
+struct DateTime
+{
+    int year;   // Год
+    int month;  // Месяц (1-12)
+    int day;    // День (1-31)
+};
+
+//Ввод даты
+void InputDate(DateTime* date) {
+    char input[11]; // Для хранения ввода (дд.мм.гггг)
+    int d, m, y;
+
+    printf("Введите дату: ");
+
+    fgets(input, sizeof(input), stdin);
+
+    // Удаление символа новой строки, если он есть
+    input[strcspn(input, "\n")] = 0;
+
+    if (strchr(input, '.') != NULL) {
+        sscanf_s(input, "%d.%d.%d", &d, &m, &y);
+    }
+    else if (strchr(input, ' ') != NULL) {
+        sscanf_s(input, "%d %d %d", &d, &m, &y);
+    }
+    else {
+        // Обработка ввода без разделителей (например, 01022012)
+        sscanf_s(input, "%2d%2d%4d", &d, &m, &y);
+    }
+
+    // Проверка корректности даты
+    int DaysInMonth[] = { 31, 28 + (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    if (y < 1930 || y > 2030 || m < 1 || m > 12 || d < 1 || d > DaysInMonth[m - 1]) {
+        printf("Ошибка ввода! Дата сброшена на 00.00.0000.\n");
+        date->day = 0;
+        date->month = 0;
+        date->year = 0;
+    }
+    else {
+        date->day = d;
+        date->month = m;
+        date->year = y;
+    }
+}
+int CalculateArcan(DateTime* date) {
+    int sum = date->day + date->month + date->year;
+
+    // Суммируем все цифры
+    while (sum >= 10) {
+        int tempSum = 0;
+        while (sum > 0) {
+            tempSum += sum % 10;
+            sum /= 10;
+        }
+        sum = tempSum;
+    }
+
+    return sum;
+}
+    int main() {
+    setlocale(LC_ALL, "Rus");
+    DateTime date = {0, 0, 0};
+    int o;
+    while (date.day == 0) {
+        InputDate(&date);
+        if (date.day == 0) {
+            printf("Недопустимая дата\n");
+            o = _getch();
+            system("cls");
+        }
+    }
+    printf("Высший аркан: %d", CalculateArcan(&date));
+    }
