@@ -4,16 +4,24 @@
 #include <cstdlib>
 #include <conio.h>
 #include <windows.h>
+
 using namespace std;
 
-struct DateTime
-{
+struct DateTime {
     int year;   // Год
     int month;  // Месяц (1-12)
     int day;    // День (1-31)
 };
 
-//Ввод даты
+void setConsoleColor(int textColor, int bgColor) {
+    // Получаем дескриптор консоли
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // Устанавливаем цвет текста и фона
+    SetConsoleTextAttribute(hConsole, textColor | (bgColor << 4));
+}
+
+// Ввод даты
 void InputDate(DateTime* date) {
     char input[11]; // Для хранения ввода (дд.мм.гггг)
     int d, m, y;
@@ -23,7 +31,7 @@ void InputDate(DateTime* date) {
     fgets(input, sizeof(input), stdin);
 
     // Удаление символа новой строки, если он есть
-    input[strcspn(input, "\n")] = 0;
+    input[strcspn(input, "n")] = 0;
 
     if (strchr(input, '.') != NULL) {
         sscanf_s(input, "%d.%d.%d", &d, &m, &y);
@@ -40,7 +48,7 @@ void InputDate(DateTime* date) {
     int DaysInMonth[] = { 31, 28 + (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
     if (y < 1930 || y > 2030 || m < 1 || m > 12 || d < 1 || d > DaysInMonth[m - 1]) {
-        printf("Ошибка ввода! Дата сброшена на 00.00.0000.\n");
+        printf("Ошибка ввода! Дата сброшена на 00.00.0000.n");
         date->day = 0;
         date->month = 0;
         date->year = 0;
@@ -51,6 +59,7 @@ void InputDate(DateTime* date) {
         date->year = y;
     }
 }
+
 int CalculateArcan(DateTime* date) {
     int sum = date->day + date->month + date->year;
 
@@ -66,17 +75,30 @@ int CalculateArcan(DateTime* date) {
 
     return sum;
 }
-    int main() {
-    setlocale(LC_ALL, "Rus");
-    DateTime date = {0, 0, 0};
+
+int main() {
+    setlocale(LC_ALL, "");
+
+    // Устанавливаем красный текст на белом фоне
+    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+
+    system("cls");
+
+    DateTime date = { 0, 0, 0 };
     int o;
     while (date.day == 0) {
         InputDate(&date);
         if (date.day == 0) {
-            printf("Недопустимая дата\n");
+            printf("Недопустимая датаn");
             o = _getch();
             system("cls");
         }
     }
-    printf("Высший аркан: %d", CalculateArcan(&date));
-    }
+
+    printf("Высший аркан: %dn", CalculateArcan(&date));
+
+    // Возвращаем цвет консоли к стандартному
+    setConsoleColor(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, BACKGROUND_GREEN);
+
+    return 0;
+}
